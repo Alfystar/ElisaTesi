@@ -15,14 +15,18 @@ Eta = categorical(categories(T.Eta));
 
 [eta_GeneriMatrix, eta_GeneriMatrixRowNorm, eta_GeneriMatrixColNorm]  = dualCategoryMatrixInterpolation(T, Eta, generi)
 
-[eta_GeneriMatrixCutRowNorm, generiOrder1] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi)
-[eta_GeneriMatrixCutColNorm, generiOrder2] = tableSortCol(eta_GeneriMatrixColNorm, 'descend', generi)
+
+% [categories(generi), generiOrder1, generiOrder2]
 
 figure(1)
-doubleBarPlot(eta_GeneriMatrixCutRowNorm, generiOrder1, Eta, "Analisi generi ed età")
+[eta_GeneriMatrixCutRowNorm, generiOrder1] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi)
+doubleBarPlot(eta_GeneriMatrixCutRowNorm, generiOrder1, Eta, "Analisi generi ed età[%]")
+
 
 figure(2)
-doubleBarPlot(eta_GeneriMatrixCutColNorm, generiOrder2, Eta, "Analisi generi ed età")
+[eta_GeneriMatrixCut, generiOrder2] = tableSortCol(eta_GeneriMatrix, 'descend', generi);
+doubleBarPlot(eta_GeneriMatrixCut, generiOrder2, Eta, "Analisi generi ed età")
+
 
 
 function doubleBarPlot(tableMatrix, xNameCategory, subBarCategory, titleString)
@@ -77,7 +81,10 @@ function [matrixTab, normRow, normCol] = dualCategoryMatrixInterpolation(reportC
     matrixTab("SumCols",:) = array2table(sum(matrixTab{:,:}));
     matrixTab(:,"SumRows") = array2table(sum(matrixTab{:,:}')');
     normRow = matrixTab{:,:}./matrixTab{:,"SumRows"};
+    normRow(end,:) = sum(normRow);
     normRow = array2table(normRow, 'RowNames', matrixTab.Row, 'VariableNames', matrixTab.Properties.VariableNames);
+        
     normCol = matrixTab{:,:}./matrixTab{"SumCols",:};
+    normCol(:,end) = sum(normCol,2);
     normCol = array2table(normCol, 'RowNames', matrixTab.Row, 'VariableNames', matrixTab.Properties.VariableNames);
 end
