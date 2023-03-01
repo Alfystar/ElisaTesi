@@ -5,13 +5,25 @@ close all
 report = ImportBookTokReport_2("3-BooktTok, cosa ci nascondi.csv");
 savePath = "saveGraph/";
 [status, msg, msgID] = mkdir(savePath);
-% Analizzarre la colonna 'QualIlTuoBookinfluencerPreferito' per trovare le
-% parole più usate e fare un grafico di parole
 
 % Global Category
 Eta = categorical(["meno di 14", "14-18", "19-25", "26-35", "36-45", "più di 46"]);
+Eta = reordercats(Eta,["meno di 14", "14-18", "19-25", "26-35", "36-45", "più di 46"]);
+
+Occupazione = categorical(["Studente","Lavoratore","Disoccupato","Pensionato"]);
+Occupazione = reordercats(Occupazione,["Studente","Lavoratore","Disoccupato","Pensionato"]);
+
 siNoCat = categorical(["Si","No","Altri"]);
-qualeSocial = categorical(["Altri","Youtube","Instagram","Tiktok","Twitter","Facebook"]);
+siNoCat = reordercats(siNoCat,["Si","No","Altri"]);
+
+qualeSocial = categorical(["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
+qualeSocial = reordercats(qualeSocial,["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
+
+Comunita = categorical(["Parte di una Comunità","Lettore Solitario"]);
+
+% Global ID
+utentiParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "Si";
+utentiNonParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "No";
 
 
 
@@ -22,31 +34,33 @@ generi = categorical(["Classici", "Fantasy e Avventura", "Fantascienza", "Giallo
 [eta_GeneriMatrix, eta_GeneriMatrixRowNorm, eta_GeneriMatrixColNorm]  = dualCategoryMatrixInterpolation(T, Eta, generi);
 
 figure(1)
+clf
 [eta_GeneriMatrixCut, generiOrder1] = tableSortCol(eta_GeneriMatrix, 'descend', generi);
-doubleBarPlot(eta_GeneriMatrixCut, generiOrder1, Eta, "Analisi generi ed età");
+doubleBarPlotRowNorm(eta_GeneriMatrixCut, generiOrder1, Eta, "Analisi generi ed età",7);
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'1-Analisi generi ed età.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'01-Analisi generi ed età.pdf', '-dpdf')
 
 figure(2)
+clf
 [eta_GeneriMatrixCutRowNorm, generiOrder2] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi);
-doubleBarPlot(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]");
+doubleBarPlotRowNorm(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]",7);
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'2-Analisi generi ed età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'02-Analisi generi ed età[%].pdf', '-dpdf')
 
 %% Libri letti per fascia di Età (3)
 % Età, Quanti libri leggi in media in un anno (Scrivere il numero intero: Esempio: 25)
 T = report(:, ["Eta", "QuantiLibriLeggiInMediaInUnAnnoScrivereIlNumeroInteroEsempio25"]);
-hist3MultCategory(T, Eta, 15, 150, "Libri letti per fascia di Età[%]", 3)
+hist3MultCategory(T, Eta, 15, 150, "Libri letti per fascia di Età[%]", 5)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'3-Libri letti per fascia di Età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'03-Libri letti per fascia di Età[%].pdf', '-dpdf')
 
 %% Libri comprati per fascia di età (4)
 T = report(:, ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"]);
 hist3MultCategory(T, Eta, 10, 100, "Libri comprati per fascia di Età[%]",4)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'4-Libri comprati per fascia di Età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'04-Libri comprati per fascia di Età[%].pdf', '-dpdf')
 
 %% I bookInfluenzer del report di quale social fanno parte (5)
 T = report(:, ["UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
@@ -61,7 +75,7 @@ bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè 
 grid on
 title("I bookInfluenzer del report di quale social fanno parte")
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'5-I bookInfluenzer del report di quale social fanno parte.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'05-I bookInfluenzer del report di quale social fanno parte.pdf', '-dpdf')
 
 %% Dove le persone cercano informazioni sulla lettura (6)
 T = report(:, ["UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
@@ -76,7 +90,7 @@ bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè 
 grid on
 title("Dove le persone del report cercano informazioni sulla lettura")
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'6-Dove le persone del report cercano informazioni sulla lettura.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura.pdf', '-dpdf')
 
 %% L'impatto di tiktok rispetto all'età (7)
 report_filterId = report.ConosciBooktok == "Si" & ~isundefined(report.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB);
@@ -90,18 +104,16 @@ Abitudini = categorical(categories(T.QuantoSonoCambiateLeTueAbitudiniDiLetturaDa
 [cambioAbitudiniNum,cambioAbitudini,~] = dualCategoryMatrixInterpolation(T, Eta, Abitudini);
 figure(7)
 [cambioAbitudiniCut, AbitudiniOrder] = tableSortCol(cambioAbitudini, 'ascend', Abitudini);
-doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto di tiktok rispetto all'età [%]");
+doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto su coloro che conoscono tiktok rispetto all'età [%]");
 set(gcf,'Position',[0 0 2000 500])
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+"7-L'impatto di tiktok rispetto all'età [%].pdf", '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età [%].pdf", '-dpdf')
 
 %% Uso dei Supporti [%] (8)
 % asse y su due livelli/valori chi si considera parte di una comunità librosa, 
 % asse x le varie età,
 % asse z la percentuale per ogni fascia di età che legge con un certo supporto
 
-utentiParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "Si";
-utentiNonParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "No";
 col = ["Eta", "ConQualeSupportoPreferisciLeggereSelezionaTuttiQuelliCheUsi"];
 
 utentiParteComLib = report(utentiParteComLib_Id,:);
@@ -110,38 +122,95 @@ utentiNonParteComLib = report(utentiNonParteComLib_Id,:);
 TNo = utentiNonParteComLib(:, col);
 
 Supporto = categorical(["Audiolibro","Cartaceo","Ebook"]);
-[~,UsoSupportoCom,~] = dualCategoryMatrixInterpolation(TSi, Eta, Supporto);
-[~,UsoSupportoNonCom,~] = dualCategoryMatrixInterpolation(TNo, Eta, Supporto);
-
-array = zeros([length(Supporto),2,length(Eta)]);
-for level = 1:length(Eta)
-    array(:,:,level) = [UsoSupportoCom{level,1:end-1}', UsoSupportoNonCom{level,1:end-1}'];
-end
 
 figure(8)
-stacked_bar3(array);
-grid on
+Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, Supporto)
 title("Uso dei Supporti [%]")
 alpha(.8)
-Eta = categorical(["meno di 14", "14-18", "19-25", "26-35", "36-45", "più di 46"]);
-Supporto = categorical(["Audiolibro","Cartaceo","Ebook"]);
-Comunita = categorical(["Parte di una Cominità","Lettore Solitario"]);
-set(gca,'YTickLabel',Supporto)
-set(gca,'ytick',1:3)
-set(gca,'ylim',[0.5,3.5])
-
-set(gca,'XTickLabel',Comunita)
-set(gca,'xtick',1:2)
-set(gca,'xlim',[0.5,2.5])
-legend(Eta,'Location', 'northeast')
 view(-75,10)
 set(gcf,'PaperOrientation','portrait');
-print(gcf,'-vector','-bestfit', savePath+'8-Uso dei Supporti [%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'08-Uso dei Supporti [%].pdf', '-dpdf')
+
+
+%% Tempo di lettura in base all'occupazione [%](9)
+T = report(:, ["Occupazione", "MediamenteASettimanaQuantoTempoPassiALeggere"]);
+T.MediamenteASettimanaQuantoTempoPassiALeggere = fillmissing(T.MediamenteASettimanaQuantoTempoPassiALeggere, 'constant', "meno di un'ora");
+
+TempoMedioLettura = categorical(["meno di un'ora", "1 o 2 ore", "dalle 3 alle 6 ore", "dalle 7 alle 10 ore", "Più di 10 ore"]);
+TempoMedioLettura = reordercats(TempoMedioLettura,["meno di un'ora", "1 o 2 ore", "dalle 3 alle 6 ore", "dalle 7 alle 10 ore", "Più di 10 ore"]);
+[~, occupazioneTempoLettura, ~]  = dualCategoryMatrixInterpolation(T, Occupazione, TempoMedioLettura);
+
+figure(9)
+clf
+doubleBarPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, Occupazione, "Tempo di lettura in base all'occupazione [%]",4);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupazione [%].pdf", '-dpdf')
+
+%% Comunità Librose ed Eta [%] (10)
+report_filterId = ~isundefined(report.SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali);
+report_filter = report(report_filterId,:);
+T = report_filter(:, ["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
+[~, ~, comunitaLibroseEta]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial);
+figure(10)
+clf
+doubleBarPlotColNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, "Comunità Librose ed Eta [%]",0);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"10-Comunità Librose ed Eta [%].pdf", '-dpdf')
+
+%% Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita (11)
+col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
+
+utentiParteComLib = report(utentiParteComLib_Id,:);
+TSi = utentiParteComLib(:, col);
+utentiNonParteComLib = report(utentiNonParteComLib_Id,:);
+TNo = utentiNonParteComLib(:, col);
+
+sogliaSpesa = categorical(categories(report.QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro));
+
+figure(11)
+Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, sogliaSpesa)
+title("Uso dei Supporti [%]")
+alpha(.7)
+view(45,20)
+set(gcf,'Position',[0 0 1600 1200])
+set(gcf,'PaperOrientation','portrait');
+print(gcf,'-vector','-bestfit', savePath+"11-Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita.pdf", '-dpdf')
 
 
 
 
+function Bar3dPlotNLevel(TList, catTList, catBar, catOriz)
+    if (length(TList) ~= length(catTList))
+        error("Numero Tabelle, e Numero categorie diverse")
+    end
 
+    spessore=length(TList);
+    catMatrixList = cell(1,spessore);
+    for sp = 1 : spessore
+        [~,catMatrixList{sp},~] = dualCategoryMatrixInterpolation(TList{sp}, catBar, catOriz);
+    end
+    
+    array = zeros([length(catOriz),spessore,length(catBar)]);
+    for level = 1:length(catBar)
+        vector=zeros(length(catOriz),spessore);
+        for sp = 1 : spessore
+            vector(:,sp)= catMatrixList{sp}{level,1:end-1}';
+        end
+        array(:,:,level) = vector;
+    end
+    
+    stacked_bar3(array);
+    grid on
+    set(gca,'YTickLabel',catOriz)
+    set(gca,'ytick',1:length(catOriz))
+    set(gca,'ylim',[0.5,length(catOriz)+0.5])
+    
+    set(gca,'XTickLabel',catTList)
+    set(gca,'xtick',1:spessore)
+    set(gca,'xlim',[0.5,spessore+0.5])
+
+    legend(catBar,'Location', 'northeast')
+end
 
 % Prima colonna la categoria, seconda colonna i numeri
 function hist3MultCategory(reportColTable, categoryValue, slotSize, maxFixed, titleStr, figNum)
@@ -188,9 +257,35 @@ function hist3MultCategory(reportColTable, categoryValue, slotSize, maxFixed, ti
     ylim(0.5 + [0 slot])
 end
 
+function doubleBarPlotColNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel)
+bar(xNameCategory,tableMatrix,'stacked');
+if fitLevel > 0
+    hold on
+    barSum = nansum(tableMatrix,2)';
+    barSumDysplayOrder(grp2idx(xNameCategory)) = barSum;
+    % Fitta usando un polinomio
+    p = polyfit(1:length(xNameCategory),barSumDysplayOrder,fitLevel);
+    xFit = 1:.1:length(grp2idx(xNameCategory));
+    yFit = polyval(p,xFit);
+    plot(1:length(xNameCategory),barSumDysplayOrder,'ro',xFit,yFit,'-r') % Trend Line
+end
+legend(subBarCategory)
+grid on
+title(titleString)
+end
 
-function doubleBarPlot(tableMatrix, xNameCategory, subBarCategory, titleString)
-bar(xNameCategory,tableMatrix,'stacked')
+function doubleBarPlotRowNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel)
+bar(xNameCategory,tableMatrix,'stacked');
+hold on
+if fitLevel > 0
+    barSum = nansum(tableMatrix);
+    barSumDysplayOrder(grp2idx(xNameCategory)) = barSum;
+    % Fitta usando un polinomio
+    p = polyfit(1:length(xNameCategory),barSumDysplayOrder,fitLevel);
+    xFit = 1:.1:length(grp2idx(xNameCategory));
+    yFit = polyval(p,xFit);
+    plot(1:length(xNameCategory),barSumDysplayOrder,'ro',xFit,yFit,'-r') % Trend Line
+end
 legend(subBarCategory)
 grid on
 title(titleString)
@@ -249,10 +344,10 @@ function [matrixTab, normRow, normCol] = dualCategoryMatrixInterpolation(reportC
     matrixTab("SumCols",:) = array2table(nansum(matrixTab{:,:}));
     matrixTab(:,"SumRows") = array2table(nansum(matrixTab{:,:}')');
     normRow = matrixTab{:,:}./matrixTab{:,"SumRows"};
-    normRow(end,:) = nansum(normRow);
+    normRow(end,:) = nansum(normRow(1:end-1,:));
     normRow = array2table(normRow, 'RowNames', matrixTab.Row, 'VariableNames', matrixTab.Properties.VariableNames);
         
     normCol = matrixTab{:,:}./matrixTab{"SumCols",:};
-    normCol(:,end) = nansum(normCol,2);
+    normCol(:,end) = nansum(normCol(:,1:end-1),2);
     normCol = array2table(normCol, 'RowNames', matrixTab.Row, 'VariableNames', matrixTab.Properties.VariableNames);
 end
