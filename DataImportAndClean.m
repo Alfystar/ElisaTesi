@@ -21,17 +21,24 @@ qualeSocial = reordercats(qualeSocial,["Youtube","Instagram","Tiktok","Twitter",
 
 Comunita = categorical(["Parte di una Comunità","Lettore Solitario"]);
 
+prezzoInfluisce = categorical(["Il prezzo influisce","Il prezzo non influisce"]);
+
+sogliaSpesa = categorical(categories(report.QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro));
+sogliaSpesaRename = renamecats(sogliaSpesa,{'Se il libro mi interessa non importa il prezzo'},{'Se interessa  non ha prezzo'});
+
 % Global ID
 utentiParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "Si";
 utentiNonParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "No";
 
+utentiFrenatiDalPrezzo_Id = report.IlPrezzoDiUnLibroTiFrenaDalComprarlo == "Si";
+utentiNonFrenatiDalPrezzo_Id = report.IlPrezzoDiUnLibroTiFrenaDalComprarlo == "No";
 
 
 %% A seconda dell'età, i generi che la gente preferisce (1 e 2)
 T = report(:, ["Eta", "QualIlGenereChePreferisciLeggerepuoiSelezionarePiDiUnaRisposta"]);
 generi = categorical(["Classici", "Fantasy e Avventura", "Fantascienza", "Giallo e Thriller", "Romanzo storico", "Romanzo rosa e Chick-lit", "Young Adult e New Adult", "Saggi e divulgazione scientifica", "Altri"]);
 
-[eta_GeneriMatrix, eta_GeneriMatrixRowNorm, eta_GeneriMatrixColNorm]  = dualCategoryMatrixInterpolation(T, Eta, generi);
+[eta_GeneriMatrix, eta_GeneriMatrixRowNorm, ~]  = dualCategoryMatrixInterpolation(T, Eta, generi);
 
 figure(1)
 clf
@@ -79,13 +86,13 @@ print(gcf,'-vector','-bestfit', savePath+'05-I bookInfluenzer del report di qual
 
 %% Dove le persone, divise per Eta, cercano informazioni sulla lettura [%](6)
 T_filterId = report.UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook == "Si";
-T_filter = report(T_filterId,["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
+T_filter = report(T_filterId,["SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali", "Eta"]);
 
-[~,~,suQualeSocialCerciLibri] = dualCategoryMatrixInterpolation(T_filter, Eta, qualeSocial);
+[~,~,suQualeSocialCerciLibri] = dualCategoryMatrixInterpolation(T_filter, qualeSocial, Eta);
 [suQualeSocialCerciLibriCut, qualeSocialOrder] = tableSortRow(suQualeSocialCerciLibri, 'descend', qualeSocial);
 figure(6)
 clf
-doubleBarPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le persone del report cercano informazioni sulla lettura divise per Età [%]",4);
+doubleBarPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le persone del report cercano informazioni sulla lettura divise per Età [%]",2);
 
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.pdf', '-dpdf')
@@ -150,7 +157,7 @@ print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupa
 report_filterId = ~isundefined(report.SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali);
 report_filter = report(report_filterId,:);
 T = report_filter(:, ["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
-[~, comunitaLibroseEta , ~]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial)
+[~, comunitaLibroseEta , ~]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial);
 % [comunitaLibroseEtacut, qualeSocialOrder] = tableSortCol(comunitaLibroseEta, 'descend', qualeSocial);
 
 figure(10)
@@ -163,17 +170,14 @@ print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nell
 %% Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita (11)
 col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
 
-utentiParteComLib = report(utentiParteComLib_Id,:);
-TSi = utentiParteComLib(:, col);
-utentiNonParteComLib = report(utentiNonParteComLib_Id,:);
-TNo = utentiNonParteComLib(:, col);
-
-sogliaSpesa = categorical(categories(report.QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro));
+TSi = report(utentiParteComLib_Id, col);
+TNo = report(utentiNonParteComLib_Id, col);
 
 figure(11)
 clf
 Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, sogliaSpesa)
-title("Uso dei Supporti [%]")
+set(gca,'YTickLabel',sogliaSpesaRename)
+title("Soglia massima di budget in base alla categoria")
 legend('Location','northwest')
 alpha(.7)
 view(45,20)
@@ -181,6 +185,43 @@ set(gcf,'Position',[0 0 1600 1200])
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"11-Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita.pdf", '-dpdf')
 
+
+%% IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Come il prezzo influisce sulla scelta dello stato del libro da acquistare (12)
+col = ["Eta", "PreferisciCompareLibri"];
+
+TSi = report(utentiFrenatiDalPrezzo_Id, col);
+TNo = report(utentiNonFrenatiDalPrezzo_Id, col);
+
+statoLibro = categories(report.PreferisciCompareLibri);
+
+figure(12)
+clf
+Bar3dPlotNLevel({TSi,TNo}, prezzoInfluisce, Eta, statoLibro)
+title(["IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO?","Come il prezzo influisce sulla scelta dello stato del libro da acquistare [%]"])
+legend('Location','northwest')
+alpha(.8)
+view(-100,10)
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'12-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Come il prezzo influisce sulla scelta dello stato del libro da acquistare.pdf', '-dpdf')
+
+%% IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Qual è la discriminante quando compri dei libri (13)
+col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
+
+TSi = report(utentiFrenatiDalPrezzo_Id, col);
+TNo = report(utentiNonFrenatiDalPrezzo_Id, col);
+
+statoLibro = categories(report.PreferisciCompareLibri);
+figure(13)
+clf
+Bar3dPlotNLevel({TSi,TNo}, prezzoInfluisce, Eta, sogliaSpesa)
+title(["IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO?","Qual è la discriminante quando compri dei libri [%]"])
+set(gca,'YTickLabel',sogliaSpesaRename)
+legend('Location','northwest')
+alpha(.8)
+view(70,20)
+set(gcf,'Position',[0 0 2000 1600])
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'13-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Qual è la discriminante quando compri dei libri.pdf', '-dpdf')
 
 
 
