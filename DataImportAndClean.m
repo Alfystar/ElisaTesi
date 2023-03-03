@@ -1,3 +1,6 @@
+%  To run install:
+% - https://it.mathworks.com/matlabcentral/fileexchange/69063-matlab-table-to-latex-conversor
+% - polyfit toolbox
 clc
 clear
 close all
@@ -13,8 +16,11 @@ Eta = reordercats(Eta,["meno di 14", "14-18", "19-25", "26-35", "36-45", "più d
 Occupazione = categorical(["Studente","Lavoratore","Disoccupato","Pensionato"]);
 Occupazione = reordercats(Occupazione,["Studente","Lavoratore","Disoccupato","Pensionato"]);
 
-siNoCat = categorical(["Si","No","Altri"]);
-siNoCat = reordercats(siNoCat,["Si","No","Altri"]);
+siNoAltri = categorical(["Si","No","Altri"]);
+siNoAltri = reordercats(siNoAltri,["Si","No","Altri"]);
+
+siNoCat = categorical(["Si","No"]);
+siNoCat = reordercats(siNoCat,["Si","No"]);
 
 qualeSocial = categorical(["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
 qualeSocial = reordercats(qualeSocial,["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
@@ -25,6 +31,8 @@ prezzoInfluisce = categorical(["Il prezzo influisce","Il prezzo non influisce"])
 
 sogliaSpesa = categorical(categories(report.QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro));
 sogliaSpesaRename = renamecats(sogliaSpesa,{'Se il libro mi interessa non importa il prezzo'},{'Se interessa  non ha prezzo'});
+
+voto1_5 = categorical({'1', '2', '3', '4', '5'});
 
 % Global ID
 utentiParteComLib_Id = report.TiRitieniParteDiUnaComunitLibrosaOnlineBookTubeBookstagramBookT == "Si";
@@ -46,13 +54,14 @@ clf
 doubleBarPlotRowNorm(eta_GeneriMatrixCut, generiOrder1, Eta, "Analisi generi ed età",7);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'01-Analisi generi ed età.pdf', '-dpdf')
-
+table2latex(eta_GeneriMatrix,char(savePath+'01-Analisi generi ed età.tex'))
 figure(2)
 clf
 [eta_GeneriMatrixCutRowNorm, generiOrder2] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi);
 doubleBarPlotRowNorm(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]",7);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'02-Analisi generi ed età-perc.pdf', '-dpdf')
+table2latex(eta_GeneriMatrixRowNorm,char(savePath+'02-Analisi generi ed età-perc.tex'))
 
 %% Libri letti per fascia di Età (3)
 % Età, Quanti libri leggi in media in un anno (Scrivere il numero intero: Esempio: 25)
@@ -83,12 +92,13 @@ doubleBarPlotColNorm(suQualeSocialSeiInfluenzerCut, qualeSocialOrder, Eta, "I Bo
 % title("I bookInfluenzer del report di quale social fanno parte")
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'05-I bookInfluenzer del report di quale social fanno parte.pdf', '-dpdf')
+table2latex(suQualeSocialSeiInfluenzer,char(savePath+'05-I bookInfluenzer del report di quale social fanno parte.tex'))
 
 %% Dove le persone, divise per Eta, cercano informazioni sulla lettura [%](6)
 T_filterId = report.UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook == "Si";
 T_filter = report(T_filterId,["SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali", "Eta"]);
 
-[~,~,suQualeSocialCerciLibri] = dualCategoryMatrixInterpolation(T_filter, qualeSocial, Eta);
+[suQualeSocialCerciLibriClear,~,suQualeSocialCerciLibri] = dualCategoryMatrixInterpolation(T_filter, qualeSocial, Eta);
 [suQualeSocialCerciLibriCut, qualeSocialOrder] = tableSortRow(suQualeSocialCerciLibri, 'descend', qualeSocial);
 figure(6)
 clf
@@ -96,6 +106,9 @@ doubleBarPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le
 
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.pdf', '-dpdf')
+table2latex(suQualeSocialCerciLibri,char(savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.tex'))
+table2latex(suQualeSocialCerciLibriClear,char(savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-clear.tex'))
+
 
 %% L'impatto di tiktok rispetto all'età (7)
 report_filterId = report.ConosciBooktok == "Si" & ~isundefined(report.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB);
@@ -114,6 +127,8 @@ doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto su coloro che
 set(gcf,'Position',[0 0 2000 500])
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-perc.pdf", '-dpdf')
+table2latex(cambioAbitudini,char(savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-perc.tex"))
+table2latex(cambioAbitudiniNum,char(savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-clear.tex"))
 
 %% Uso dei Supporti [%] (8)
 % asse y su due livelli/valori chi si considera parte di una comunità librosa, 
@@ -142,30 +157,36 @@ print(gcf,'-vector','-bestfit', savePath+'08-Uso dei Supporti-perc.pdf', '-dpdf'
 %% Tempo di lettura in base all'occupazione [%](9)
 T = report(:, ["Occupazione", "MediamenteASettimanaQuantoTempoPassiALeggere"]);
 T.MediamenteASettimanaQuantoTempoPassiALeggere = fillmissing(T.MediamenteASettimanaQuantoTempoPassiALeggere, 'constant', "meno di un'ora");
+oldcats = {'Lavoratore', 'Pensionato'};
+T.Occupazione = mergecats(T.Occupazione,oldcats);
+
 
 TempoMedioLettura = categorical(["meno di un'ora", "1 o 2 ore", "dalle 3 alle 6 ore", "dalle 7 alle 10 ore", "Più di 10 ore"]);
 TempoMedioLettura = reordercats(TempoMedioLettura,["meno di un'ora", "1 o 2 ore", "dalle 3 alle 6 ore", "dalle 7 alle 10 ore", "Più di 10 ore"]);
-[~, occupazioneTempoLettura, ~]  = dualCategoryMatrixInterpolation(T, Occupazione, TempoMedioLettura);
+[occupazioneTempoLetturaNum, occupazioneTempoLettura, ~]  = dualCategoryMatrixInterpolation(T, categorical(categories(T.Occupazione)), TempoMedioLettura);
 
 figure(9)
 clf
-doubleBarPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, Occupazione, "Tempo di lettura in base all'occupazione [%]",4);
+doubleBarPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, categories(T.Occupazione), "Tempo di lettura in base all'occupazione [%]",3);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupazione-perc.pdf", '-dpdf')
+table2latex(occupazioneTempoLettura,char(savePath+"09-Tempo di lettura in base all'occupazione-perc.tex"))
+table2latex(occupazioneTempoLetturaNum,char(savePath+"09-Tempo di lettura in base all'occupazione-clear.tex"))
 
 %% Comunità Librose ed Eta [%] (10)
 report_filterId = ~isundefined(report.SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali);
 report_filter = report(report_filterId,:);
 T = report_filter(:, ["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
-[~, comunitaLibroseEta , ~]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial);
-% [comunitaLibroseEtacut, qualeSocialOrder] = tableSortCol(comunitaLibroseEta, 'descend', qualeSocial);
+[comunitaLibroseEtaNum, comunitaLibroseEta , ~]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial);
 
 figure(10)
 clf
 doubleBarPlotRowNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, "Distribuzione delle Eta [%] nelle comunità Librose",0);
 legend('Location','bestoutside')
 set(gcf,'PaperOrientation','portrait');
-print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose.pdf", '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-perc.pdf", '-dpdf')
+table2latex(comunitaLibroseEta,char(savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-perc.tex"))
+table2latex(comunitaLibroseEtaNum,char(savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-clear.tex"))
 
 %% Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita (11)
 col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
@@ -202,7 +223,7 @@ legend('Location','northwest')
 alpha(.8)
 view(-100,10)
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'12-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Come il prezzo influisce sulla scelta dello stato del libro da acquistare.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'12-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO-Come il prezzo influisce sulla scelta dello stato del libro da acquistare.pdf', '-dpdf')
 
 %% IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Qual è la discriminante quando compri dei libri (13)
 col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
@@ -221,7 +242,133 @@ alpha(.8)
 view(70,20)
 set(gcf,'Position',[0 0 2000 1600])
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'13-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO? Qual è la discriminante quando compri dei libri.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'13-IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO-Qual è la discriminante quando compri dei libri.pdf', '-dpdf')
+
+%% Con quanta frequenza ti capitano nei "per te" o nel "feed" video o post del BookTok, BookTube o Bookstagram (14)
+T = report(:, ["Eta", "Da1A5ConQuantaFrequenzaTiCapitanoNeiperTeONelfeedVideoOPostDelB"]);
+
+[frequenzaFeedNum, frequenzaFeed, ~]  = dualCategoryMatrixInterpolation(T, Eta, voto1_5);
+
+figure(14)
+clf
+doubleBarPlotRowNorm(frequenzaFeed{1:end-1,1:end-1}, voto1_5, Eta, {'Con quanta frequenza ti capitano nei "Per Te" o nel "Feed"','video o post del BookTok, BookTube o Bookstagram [%]'},0);
+legend("Location","northwest")
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"14-Con quanta frequenza ti capitano nei feed video o post a tema libro-perc.pdf", '-dpdf')
+table2latex(frequenzaFeed,char(savePath+"14-Con quanta frequenza ti capitano nei feed video o post a tema libro-perc.tex"))
+table2latex(frequenzaFeedNum,char(savePath+"14-Con quanta frequenza ti capitano nei feed video o post a tema libro-clear.tex"))
+
+
+%% Quanto pensi che il BookTok, Bookstagram, BookTube abbia influito sul tuo approccio alla lettura (15)
+T = report(:, ["Eta", "Da1A5QuantoPensiCheIlBookTokBookstagramBookTubeAbbiaInfluitoSul"]);
+
+[bookInfluenzaNum, bookInfluenza, ~]  = dualCategoryMatrixInterpolation(T, Eta, voto1_5);
+
+figure(15)
+clf
+doubleBarPlotRowNorm(bookInfluenza{1:end-1,1:end-1}, voto1_5, Eta, {'Quanto pensi che il BookTok, Bookstagram, BookTube','abbia influito sul tuo approccio alla lettura [%]'},0);
+set(gcf,'Position',[0 0 800 600])
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"15-Quanto pensi che il BookTok, Bookstagram, BookTube abbia influito sul tuo approccio alla lettura-perc.pdf", '-dpdf')
+table2latex(bookInfluenza,char(savePath+"15-Quanto pensi che il BookTok, Bookstagram, BookTube abbia influito sul tuo approccio alla lettura-perc.tex"))
+table2latex(bookInfluenzaNum,char(savePath+"15-Quanto pensi che il BookTok, Bookstagram, BookTube abbia influito sul tuo approccio alla lettura-clear.tex"))
+
+%% Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram (16)
+T = report(:, ["Eta", "PrimaDiComprareUnLibroQuantoTiBasiSuiPareriDelBookTokBooktubeEB"]);
+oldcats = {'1', '0'};
+T.PrimaDiComprareUnLibroQuantoTiBasiSuiPareriDelBookTokBooktubeEB = mergecats(T.PrimaDiComprareUnLibroQuantoTiBasiSuiPareriDelBookTokBooktubeEB,oldcats);
+
+[importanzaBookInfluenzerNum, importanzaBookInfluenzer, ~]  = dualCategoryMatrixInterpolation(T, Eta, voto1_5);
+
+figure(16)
+clf
+doubleBarPlotRowNorm(importanzaBookInfluenzer{1:end-1,1:end-1}, voto1_5, Eta, {'Prima di comprare un libro quanto ti basi','BookTok, Booktube e Bookstagram [%]'},0);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"16-Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram-perc.pdf", '-dpdf')
+table2latex(importanzaBookInfluenzer,char(savePath+"16-Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram-perc.tex"))
+table2latex(importanzaBookInfluenzerNum,char(savePath+"16-Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram-clear.tex"))
+
+
+%% Come scegli i libri da comprare (17)
+T = report(:, ["Eta", "ComeScegliILibriDaComprarePuoiSelezionarePiDiUnaRisposta"]);
+
+catList = [ "Leggo trame di libri finché non trovo quello che fa per me", ...
+            "Consigli di amici", ...
+            "Consigli di Bookinfluencer", ...
+            "Mi faccio consigliare dal libraio", ...
+            "Mi faccio ispirare dalla copertina"];
+comeScegliLibriComprare = categorical(catList);
+comeScegliLibriComprare = reordercats(comeScegliLibriComprare,catList);
+
+[comeScegliNum, comeScegli, ~]  = dualCategoryMatrixInterpolation(T, Eta, comeScegliLibriComprare);
+[comeSceglicut, comeScegliLibriComprareOrder] = tableSortCol(comeScegli, 'descend', comeScegliLibriComprare);
+
+figure(17)
+clf
+comeScegliLibriComprareRename = renamecats(comeScegliLibriComprareOrder, "Leggo trame di libri finché non trovo quello che fa per me", "Leggo trame");
+doubleBarPlotRowNorm(comeSceglicut, comeScegliLibriComprareRename, Eta, "Come scegli i libri da comprare [%]",3);
+set(gcf,'Position',[0 0 800 600])
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"17-Come scegli i libri da comprare-perc.pdf", '-dpdf')
+table2latex(comeScegli,char(savePath+"17-Come scegli i libri da comprare-perc.tex"))
+table2latex(comeScegliNum,char(savePath+"17-Come scegli i libri da comprare-clear.tex"))
+
+%% Compri libri che hanno sulla copertina scritto "fenomeno di BookTok" o "romanzo di wattpad" (18)
+T = report(:, ["Eta", "CompriLibriCheHannoSullaCopertinaScrittofenomenoDiBookTokOroman"]);
+currentCat = categorical(categories(T.CompriLibriCheHannoSullaCopertinaScrittofenomenoDiBookTokOroman));
+[impattoCopertinaNum, impattoCopertina, ~]  = dualCategoryMatrixInterpolation(T, Eta, currentCat);
+
+figure(18)
+clf
+doubleBarPlotRowNorm(impattoCopertina{1:end-1,1:end-1}, currentCat, Eta, {'Compri libri che hanno sulla copertina scritto','"Fenomeno di BookTok" o "Romanzo di Wattpad" [%]'},2);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"18-Compri libri che hanno sulla copertina scritto fenomeno booktok o wattpad-perc.pdf", '-dpdf')
+table2latex(impattoCopertina,char(savePath+"18-Compri libri che hanno sulla copertina scritto fenomeno booktok o wattpad-perc.tex"))
+table2latex(impattoCopertinaNum,char(savePath+"18-Compri libri che hanno sulla copertina scritto fenomeno booktok o wattpad-clear.tex"))
+
+
+%% Considera gli ultimi dodici mesi. Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram? (19)
+T = report(:, ["Eta", "ConsideraGliUltimiDodiciMesiTiCapitatoDiComprareDeiLibriSuggeri"]);
+[impattoCopertinaUltimoAnnoNum, impattoCopertinaUltimoAnno, ~]  = dualCategoryMatrixInterpolation(T, Eta, siNoCat);
+
+figure(19)
+clf
+doubleBarPlotRowNorm(impattoCopertinaUltimoAnno{1:end-1,1:end-1}, siNoCat, Eta, {'Considera gli ultimi dodici mesi. Ti è capitato di comprare dei libri','suggeriti da BookTok, BookTube o Bookstagram? [%]'},0);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"19-Considera gli ultimi dodici mesi-Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram-perc.pdf", '-dpdf')
+table2latex(impattoCopertinaUltimoAnno,char(savePath+"19-Considera gli ultimi dodici mesi-Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram-perc.tex"))
+table2latex(impattoCopertinaUltimoAnnoNum,char(savePath+"19-Considera gli ultimi dodici mesi-Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram-clear.tex"))
+
+%% Compri e leggi un libro anche se è stato definito "brutto" da un bookinfluencer che segui e stimi? (20)
+T = report(:, ["Eta", "CompriELeggiUnLibroAncheSeStatoDefinitobruttoDaUnBookinfluencer"]);
+[libroDefBruttoNum, libroDefBrutto, ~] = dualCategoryMatrixInterpolation(T, Eta, siNoCat);
+
+figure(20)
+clf
+doubleBarPlotRowNorm(libroDefBrutto{1:end-1,1:end-1}, siNoCat, Eta, {'Compri e leggi un libro anche se è stato definito "Brutto"','da un Bookinfluencer che segui e stimi? [%]'},0);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"20-Compri e leggi un libro anche se è stato definito brutto-perc.pdf", '-dpdf')
+table2latex(libroDefBrutto,char(savePath+"20-Compri e leggi un libro anche se è stato definito brutto-perc.tex"))
+table2latex(libroDefBruttoNum,char(savePath+"20-Compri e leggi un libro anche se è stato definito brutto-clear.tex"))
+
+%% Durante la lettura di un libro cosa fai? (21)
+report_filterId = ~isundefined(report.DuranteLaLetturaDiUnLibro);
+T = report(report_filterId, ["Eta", "DuranteLaLetturaDiUnLibro"]);
+catList = ["Utilizzo dei post-it per segnare delle frasi";"Scrivo sul libro le mie impressioni";"Utilizzo evidenziatori e sottolineo frasi";"Faccio le orecchiette alle pagine";"Utilizzo segnalibri"; "Nulla";"Altri"];
+DuranteLaLetturaCat = categorical(catList);
+% DuranteLaLetturaCat = reordercats(DuranteLaLetturaCat,catList);
+
+[duranteLaLetturaNum, duranteLaLettura, ~] = dualCategoryMatrixInterpolation(T, Eta, DuranteLaLetturaCat);
+[duranteLaLetturaCut, DuranteLaLetturaCatOrder] = tableSortCol(duranteLaLettura, 'descend', DuranteLaLetturaCat);
+
+figure(21)
+clf
+doubleBarPlotRowNorm(duranteLaLetturaCut, DuranteLaLetturaCatOrder, Eta, 'Durante la lettura di un libro cosa fai? [%]',3);
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"21-Durante la lettura di un libro cosa fai-perc.pdf", '-dpdf')
+table2latex(duranteLaLettura,char(savePath+"21-Durante la lettura di un libro cosa fai-perc.tex"))
+table2latex(duranteLaLetturaNum,char(savePath+"21-Durante la lettura di un libro cosa fai-clear.tex"))
+
 
 
 
