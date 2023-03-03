@@ -6,3 +6,9 @@ Facolta di Lettere.
 Indirizzo "Scienze della comunicazione"
 
 Tesi sperimentale
+
+
+
+Per ottenere la nostra elaborazione dei dati è stato usato Matlab 2022b, con qualche plugin.
+
+Il punto di ingresso del programma matlab è "DataImportAndClean.m"
