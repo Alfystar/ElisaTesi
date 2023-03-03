@@ -45,52 +45,50 @@ clf
 [eta_GeneriMatrixCutRowNorm, generiOrder2] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi);
 doubleBarPlotRowNorm(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]",7);
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'02-Analisi generi ed età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'02-Analisi generi ed età-perc.pdf', '-dpdf')
 
 %% Libri letti per fascia di Età (3)
 % Età, Quanti libri leggi in media in un anno (Scrivere il numero intero: Esempio: 25)
 T = report(:, ["Eta", "QuantiLibriLeggiInMediaInUnAnnoScrivereIlNumeroInteroEsempio25"]);
-hist3MultCategory(T, Eta, 15, 150, "Libri letti per fascia di Età[%]", 5)
+hist3MultCategory(T, Eta, 15, 150, "Libri letti per fascia di Età[%]", 3)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'03-Libri letti per fascia di Età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'03-Libri letti per fascia di Età-perc.pdf', '-dpdf')
 
 %% Libri comprati per fascia di età (4)
 T = report(:, ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"]);
 hist3MultCategory(T, Eta, 10, 100, "Libri comprati per fascia di Età[%]",4)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'04-Libri comprati per fascia di Età[%].pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'04-Libri comprati per fascia di Età-perc.pdf', '-dpdf')
 
 %% I bookInfluenzer del report di quale social fanno parte (5)
-T = report(:, ["UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
+T_filterId = report.UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer == "Si";
+T_filter = report(T_filterId,["SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali","Eta"]);
 
-T_filterId = T.UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer == "Si";
-T_filter = T(T_filterId,:);
-
-[suQualeSocialSeiInfluenzer,~,~] = dualCategoryMatrixInterpolation(T_filter, siNoCat, qualeSocial);
-[suQualeSocialSeiInfluenzerCut, qualeSocialOrder] = tableSortCol(suQualeSocialSeiInfluenzer, 'descend', qualeSocial);
-figure (5)
-bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè "Si" è la prima posizione
-grid on
-title("I bookInfluenzer del report di quale social fanno parte")
+[suQualeSocialSeiInfluenzer,~,~] = dualCategoryMatrixInterpolation(T_filter, qualeSocial, Eta);
+[suQualeSocialSeiInfluenzerCut, qualeSocialOrder] = tableSortRow(suQualeSocialSeiInfluenzer, 'descend', qualeSocial);
+figure(5)
+clf
+doubleBarPlotColNorm(suQualeSocialSeiInfluenzerCut, qualeSocialOrder, Eta, "I Book-Influencer del report di quale social fanno parte",3);
+% bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè "Si" è la prima posizione
+% grid on
+% title("I bookInfluenzer del report di quale social fanno parte")
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'05-I bookInfluenzer del report di quale social fanno parte.pdf', '-dpdf')
 
-%% Dove le persone cercano informazioni sulla lettura (6)
-T = report(:, ["UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
+%% Dove le persone, divise per Eta, cercano informazioni sulla lettura [%](6)
+T_filterId = report.UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook == "Si";
+T_filter = report(T_filterId,["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
 
-T_filterId = T.UsiUnoDiQuestiAccountSoloPerCercareConsigliSuiLibrinonSeiUnBook == "Si";
-T_filter = T(T_filterId,:);
+[~,~,suQualeSocialCerciLibri] = dualCategoryMatrixInterpolation(T_filter, Eta, qualeSocial);
+[suQualeSocialCerciLibriCut, qualeSocialOrder] = tableSortRow(suQualeSocialCerciLibri, 'descend', qualeSocial);
+figure(6)
+clf
+doubleBarPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le persone del report cercano informazioni sulla lettura divise per Età [%]",4);
 
-[suQualeSocialSeiInfluenzer,~,~] = dualCategoryMatrixInterpolation(T_filter, siNoCat, qualeSocial);
-[suQualeSocialSeiInfluenzerCut, qualeSocialOrder] = tableSortCol(suQualeSocialSeiInfluenzer, 'descend', qualeSocial);
-figure (6)
-bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè "Si" è la prima posizione
-grid on
-title("Dove le persone del report cercano informazioni sulla lettura")
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura.pdf', '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.pdf', '-dpdf')
 
 %% L'impatto di tiktok rispetto all'età (7)
 report_filterId = report.ConosciBooktok == "Si" & ~isundefined(report.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB);
@@ -103,11 +101,12 @@ Abitudini = categorical(categories(T.QuantoSonoCambiateLeTueAbitudiniDiLetturaDa
 
 [cambioAbitudiniNum,cambioAbitudini,~] = dualCategoryMatrixInterpolation(T, Eta, Abitudini);
 figure(7)
+clf
 [cambioAbitudiniCut, AbitudiniOrder] = tableSortCol(cambioAbitudini, 'ascend', Abitudini);
 doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto su coloro che conoscono tiktok rispetto all'età [%]");
 set(gcf,'Position',[0 0 2000 500])
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età [%].pdf", '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-perc.pdf", '-dpdf')
 
 %% Uso dei Supporti [%] (8)
 % asse y su due livelli/valori chi si considera parte di una comunità librosa, 
@@ -124,12 +123,13 @@ TNo = utentiNonParteComLib(:, col);
 Supporto = categorical(["Audiolibro","Cartaceo","Ebook"]);
 
 figure(8)
+clf
 Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, Supporto)
 title("Uso dei Supporti [%]")
 alpha(.8)
 view(-75,10)
-set(gcf,'PaperOrientation','portrait');
-print(gcf,'-vector','-bestfit', savePath+'08-Uso dei Supporti [%].pdf', '-dpdf')
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'08-Uso dei Supporti-perc.pdf', '-dpdf')
 
 
 %% Tempo di lettura in base all'occupazione [%](9)
@@ -144,18 +144,21 @@ figure(9)
 clf
 doubleBarPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, Occupazione, "Tempo di lettura in base all'occupazione [%]",4);
 set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupazione [%].pdf", '-dpdf')
+print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupazione-perc.pdf", '-dpdf')
 
 %% Comunità Librose ed Eta [%] (10)
 report_filterId = ~isundefined(report.SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali);
 report_filter = report(report_filterId,:);
 T = report_filter(:, ["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"]);
-[~, ~, comunitaLibroseEta]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial);
+[~, comunitaLibroseEta , ~]  = dualCategoryMatrixInterpolation(T, Eta, qualeSocial)
+% [comunitaLibroseEtacut, qualeSocialOrder] = tableSortCol(comunitaLibroseEta, 'descend', qualeSocial);
+
 figure(10)
 clf
-doubleBarPlotColNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, "Comunità Librose ed Eta [%]",0);
-set(gcf,'PaperOrientation','landscape');
-print(gcf,'-vector','-bestfit', savePath+"10-Comunità Librose ed Eta [%].pdf", '-dpdf')
+doubleBarPlotRowNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, "Distribuzione delle Eta [%] nelle comunità Librose",0);
+legend('Location','bestoutside')
+set(gcf,'PaperOrientation','portrait');
+print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose.pdf", '-dpdf')
 
 %% Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita (11)
 col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
@@ -168,12 +171,14 @@ TNo = utentiNonParteComLib(:, col);
 sogliaSpesa = categorical(categories(report.QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro));
 
 figure(11)
+clf
 Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, sogliaSpesa)
 title("Uso dei Supporti [%]")
+legend('Location','northwest')
 alpha(.7)
 view(45,20)
 set(gcf,'Position',[0 0 1600 1200])
-set(gcf,'PaperOrientation','portrait');
+set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"11-Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita.pdf", '-dpdf')
 
 
@@ -303,6 +308,13 @@ end
 function [matrixCut, newColOrder] = tableSortCol(tableOriginal, sortType, colCategory)
 [sortedY, sortOrder] = sort(tableOriginal{"SumCols",1:end-1}, sortType);
 newColOrder = reordercats(colCategory, string(colCategory(sortOrder)));
+matrixCut = tableOriginal{1:end-1,1:end-1};
+end
+
+% Reorder rows of table based on sum of rows
+function [matrixCut, newRowlOrder] = tableSortRow(tableOriginal, sortType, rowCategory)
+[sortedY, sortOrder] = sort(tableOriginal{1:end-1,"SumRows"}, sortType);
+newRowlOrder = reordercats(rowCategory, string(rowCategory(sortOrder)));
 matrixCut = tableOriginal{1:end-1,1:end-1};
 end
 

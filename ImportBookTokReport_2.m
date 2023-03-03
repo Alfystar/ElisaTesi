@@ -58,8 +58,12 @@ BooktTokcosacinascondi.QuantiLibriLeggiInMediaInUnAnnoScrivereIlNumeroInteroEsem
 newCol = elaboraColonnaNumericaAperta(BooktTokcosacinascondi.QuandoHaiConosciutobooktokscriviSoloLannoYyyy, false, 2100);
 BooktTokcosacinascondi.QuandoHaiConosciutobooktokscriviSoloLannoYyyy = newCol;
 
-
-
+% Pulizia per un typo nella domanda poi corretta:
+% rowIndex = BooktTokcosacinascondi.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB == "Prima di conscese Booktok non leggevo";
+% BooktTokcosacinascondi.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB(rowIndex) = "Prima di conoscere Booktok non leggevo";
+oldcats = {'Prima di conoscere Booktok non leggevo', 'Prima di conscese Booktok non leggevo'};
+B = mergecats(BooktTokcosacinascondi.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB,oldcats);
+BooktTokcosacinascondi.QuantoSonoCambiateLeTueAbitudiniDiLetturaDaQuandoSeiEntratoNelB = B;
 end
 
 function newColum = elaboraColonnaNumericaAperta(colonna, media, maxValue)
