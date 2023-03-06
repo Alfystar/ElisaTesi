@@ -25,7 +25,7 @@ siNoCat = reordercats(siNoCat,["Si","No"]);
 qualeSocial = categorical(["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
 qualeSocial = reordercats(qualeSocial,["Youtube","Instagram","Tiktok","Twitter","Facebook", "Altri"]);
 
-Comunita = categorical(["Parte di una Comunità","Lettore Solitario"]);
+Comunita = categorical(["Parte di una Community","Lettore Solitario"]);
 
 prezzoInfluisce = categorical(["Il prezzo influisce","Il prezzo non influisce"]);
 
@@ -51,14 +51,14 @@ generi = categorical(["Classici", "Fantasy e Avventura", "Fantascienza", "Giallo
 figure(1)
 clf
 [eta_GeneriMatrixCut, generiOrder1] = tableSortCol(eta_GeneriMatrix, 'descend', generi);
-doubleBarPlotRowNorm(eta_GeneriMatrixCut, generiOrder1, Eta, "Analisi generi ed età",7);
+barPlotRowNorm(eta_GeneriMatrixCut, generiOrder1, Eta, "Analisi generi ed età",7);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'01-Analisi generi ed età.pdf', '-dpdf')
 table2latex(eta_GeneriMatrix,char(savePath+'01-Analisi generi ed età.tex'))
 figure(2)
 clf
 [eta_GeneriMatrixCutRowNorm, generiOrder2] = tableSortCol(eta_GeneriMatrixRowNorm, 'descend', generi);
-doubleBarPlotRowNorm(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]",7);
+barPlotRowNorm(eta_GeneriMatrixCutRowNorm, generiOrder2, Eta, "Analisi generi ed età[%]",7);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'02-Analisi generi ed età-perc.pdf', '-dpdf')
 table2latex(eta_GeneriMatrixRowNorm,char(savePath+'02-Analisi generi ed età-perc.tex'))
@@ -66,14 +66,14 @@ table2latex(eta_GeneriMatrixRowNorm,char(savePath+'02-Analisi generi ed età-per
 %% Libri letti per fascia di Età (3)
 % Età, Quanti libri leggi in media in un anno (Scrivere il numero intero: Esempio: 25)
 T = report(:, ["Eta", "QuantiLibriLeggiInMediaInUnAnnoScrivereIlNumeroInteroEsempio25"]);
-hist3MultCategory(T, Eta, 15, 150, "Libri letti per fascia di Età[%]", 3)
+hist3MultCategory(T, Eta, 10, 70, "Libri letti per fascia di Età[%]", 3)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'03-Libri letti per fascia di Età-perc.pdf', '-dpdf')
 
 %% Libri comprati per fascia di età (4)
 T = report(:, ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"]);
-hist3MultCategory(T, Eta, 10, 100, "Libri comprati per fascia di Età[%]",4)
+hist3MultCategory(T, Eta, 10, 60, "Libri comprati per fascia di Età[%]",4)
 view(65,30)
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'04-Libri comprati per fascia di Età-perc.pdf', '-dpdf')
@@ -86,10 +86,8 @@ T_filter = report(T_filterId,["SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali",
 [suQualeSocialSeiInfluenzerCut, qualeSocialOrder] = tableSortRow(suQualeSocialSeiInfluenzer, 'descend', qualeSocial);
 figure(5)
 clf
-doubleBarPlotColNorm(suQualeSocialSeiInfluenzerCut, qualeSocialOrder, Eta, "I Book-Influencer del report di quale social fanno parte",3);
-% bar(qualeSocialOrder,suQualeSocialSeiInfluenzerCut(1,:)','stacked') % 1 perchè "Si" è la prima posizione
-% grid on
-% title("I bookInfluenzer del report di quale social fanno parte")
+barPlotColNorm(suQualeSocialSeiInfluenzerCut, qualeSocialOrder, Eta, "I Book-Influencer del report di quale social fanno parte",3);
+% colNormTopTextBar(suQualeSocialSeiInfluenzer, qualeSocialOrder)
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'05-I bookInfluenzer del report di quale social fanno parte.pdf', '-dpdf')
 table2latex(suQualeSocialSeiInfluenzer,char(savePath+'05-I bookInfluenzer del report di quale social fanno parte.tex'))
@@ -102,8 +100,8 @@ T_filter = report(T_filterId,["SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali",
 [suQualeSocialCerciLibriCut, qualeSocialOrder] = tableSortRow(suQualeSocialCerciLibri, 'descend', qualeSocial);
 figure(6)
 clf
-doubleBarPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le persone del report cercano informazioni sulla lettura divise per Età [%]",2);
-
+barPlotColNorm(suQualeSocialCerciLibriCut, qualeSocialOrder, Eta, "Dove le persone del report cercano informazioni sulla lettura divise per Età [%]",2);
+% colNormTopTextBar(suQualeSocialCerciLibri, qualeSocialOrder)
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.pdf', '-dpdf')
 table2latex(suQualeSocialCerciLibri,char(savePath+'06-Dove le persone del report cercano informazioni sulla lettura divise per eta-perc.tex'))
@@ -123,7 +121,7 @@ Abitudini = categorical(categories(T.QuantoSonoCambiateLeTueAbitudiniDiLetturaDa
 figure(7)
 clf
 [cambioAbitudiniCut, AbitudiniOrder] = tableSortCol(cambioAbitudini, 'ascend', Abitudini);
-doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto su coloro che conoscono tiktok rispetto all'età [%]");
+doubleBarHPlot(cambioAbitudiniCut, AbitudiniOrder, Eta, "L'impatto su coloro che conoscono Tiktok rispetto all'età [%]");
 set(gcf,'Position',[0 0 2000 500])
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-perc.pdf", '-dpdf')
@@ -131,7 +129,7 @@ table2latex(cambioAbitudini,char(savePath+"07-L'impatto su coloro che conoscono 
 table2latex(cambioAbitudiniNum,char(savePath+"07-L'impatto su coloro che conoscono tiktok rispetto all'età-clear.tex"))
 
 %% Uso dei Supporti [%] (8)
-% asse y su due livelli/valori chi si considera parte di una comunità librosa, 
+% asse y su due livelli/valori chi si considera parte di una Community librosa, 
 % asse x le varie età,
 % asse z la percentuale per ogni fascia di età che legge con un certo supporto
 
@@ -167,7 +165,9 @@ TempoMedioLettura = reordercats(TempoMedioLettura,["meno di un'ora", "1 o 2 ore"
 
 figure(9)
 clf
-doubleBarPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, categories(T.Occupazione), "Tempo di lettura in base all'occupazione [%]",3);
+barPlotRowNorm(occupazioneTempoLettura{1:end-1,1:end-1}, TempoMedioLettura, categories(T.Occupazione), "Tempo di lettura in base all'occupazione [%]",3);
+Y = occupazioneTempoLettura{"SumCols",:};
+text(1:length(Y),Y,num2str(Y'),'vert','bottom','horiz','center');
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"09-Tempo di lettura in base all'occupazione-perc.pdf", '-dpdf')
 table2latex(occupazioneTempoLettura,char(savePath+"09-Tempo di lettura in base all'occupazione-perc.tex"))
@@ -181,12 +181,13 @@ T = report_filter(:, ["Eta", "SeHaiRispostoSAdAlmenoUnaDelleDueSpecificaQuali"])
 
 figure(10)
 clf
-doubleBarPlotRowNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, "Distribuzione delle Eta [%] nelle comunità Librose",0);
+barPlotRowNorm(comunitaLibroseEta{1:end-1,1:end-1}, Eta, qualeSocial, ["Distribuzione delle Età [%]","nelle Community Librose"],0);
+set(gca,'Xdir','reverse')
 legend('Location','bestoutside')
-set(gcf,'PaperOrientation','portrait');
-print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-perc.pdf", '-dpdf')
-table2latex(comunitaLibroseEta,char(savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-perc.tex"))
-table2latex(comunitaLibroseEtaNum,char(savePath+"10-Distribuzione delle Eta [perc] nelle comunità Librose-clear.tex"))
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+"10-Distribuzione delle Eta [perc] nelle Community Librose-perc.pdf", '-dpdf')
+table2latex(comunitaLibroseEta,char(savePath+"10-Distribuzione delle Eta [perc] nelle Community Librose-perc.tex"))
+table2latex(comunitaLibroseEtaNum,char(savePath+"10-Distribuzione delle Eta [perc] nelle Community Librose-clear.tex"))
 
 %% Quanto sei disposto a spendere in relazione all'appartenenza ad una comunita (11)
 col = ["Eta", "QualIlPrezzoMassimoCheSeiDispostoASpenderePerUnLibro"];
@@ -198,7 +199,7 @@ figure(11)
 clf
 Bar3dPlotNLevel({TSi,TNo}, Comunita, Eta, sogliaSpesa)
 set(gca,'YTickLabel',sogliaSpesaRename)
-title("Soglia massima di budget in base alla categoria")
+title("Soglia massima di budget in base all'età")
 legend('Location','northwest')
 alpha(.7)
 view(45,20)
@@ -218,7 +219,7 @@ statoLibro = categories(report.PreferisciCompareLibri);
 figure(12)
 clf
 Bar3dPlotNLevel({TSi,TNo}, prezzoInfluisce, Eta, statoLibro)
-title(["IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO?","Come il prezzo influisce sulla scelta dello stato del libro da acquistare [%]"])
+title(["IL PREZZO DI UN LIBRO TI FRENA DAL COMPRARLO?","Come il prezzo influisce sullo stato del libro da acquistare [%]"])
 legend('Location','northwest')
 alpha(.8)
 view(-100,10)
@@ -251,8 +252,7 @@ T = report(:, ["Eta", "Da1A5ConQuantaFrequenzaTiCapitanoNeiperTeONelfeedVideoOPo
 
 figure(14)
 clf
-doubleBarPlotRowNorm(frequenzaFeed{1:end-1,1:end-1}, voto1_5, Eta, {'Con quanta frequenza ti capitano nei "Per Te" o nel "Feed"','video o post del BookTok, BookTube o Bookstagram [%]'},0);
-legend("Location","northwest")
+barPlotRowNorm(frequenzaFeed{1:end-1,1:end-1}, voto1_5, Eta, {'Con quanta frequenza ti capitano nei "Per Te" o nel "Feed"','video o post del BookTok, BookTube o Bookstagram [%]'},0,'grouped');
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"14-Con quanta frequenza ti capitano nei feed video o post a tema libro-perc.pdf", '-dpdf')
 table2latex(frequenzaFeed,char(savePath+"14-Con quanta frequenza ti capitano nei feed video o post a tema libro-perc.tex"))
@@ -266,7 +266,7 @@ T = report(:, ["Eta", "Da1A5QuantoPensiCheIlBookTokBookstagramBookTubeAbbiaInflu
 
 figure(15)
 clf
-doubleBarPlotRowNorm(bookInfluenza{1:end-1,1:end-1}, voto1_5, Eta, {'Quanto pensi che il BookTok, Bookstagram, BookTube','abbia influito sul tuo approccio alla lettura [%]'},0);
+barPlotRowNorm(bookInfluenza{1:end-1,1:end-1}, voto1_5, Eta, {'Quanto pensi che il BookTok, Bookstagram, BookTube','abbia influito sul tuo approccio alla lettura [%]'},0,'grouped');
 set(gcf,'Position',[0 0 800 600])
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"15-Quanto pensi che il BookTok, Bookstagram, BookTube abbia influito sul tuo approccio alla lettura-perc.pdf", '-dpdf')
@@ -282,7 +282,7 @@ T.PrimaDiComprareUnLibroQuantoTiBasiSuiPareriDelBookTokBooktubeEB = mergecats(T.
 
 figure(16)
 clf
-doubleBarPlotRowNorm(importanzaBookInfluenzer{1:end-1,1:end-1}, voto1_5, Eta, {'Prima di comprare un libro quanto ti basi','BookTok, Booktube e Bookstagram [%]'},0);
+barPlotRowNorm(importanzaBookInfluenzer{1:end-1,1:end-1}, voto1_5, Eta, {'Prima di comprare un libro quanto ti basi','BookTok, Booktube e Bookstagram [%]'},0,'grouped');
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"16-Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram-perc.pdf", '-dpdf')
 table2latex(importanzaBookInfluenzer,char(savePath+"16-Prima di comprare un libro quanto ti basi sui pareri del BookTok, Booktube e Bookstagram-perc.tex"))
@@ -306,7 +306,7 @@ comeScegliLibriComprare = reordercats(comeScegliLibriComprare,catList);
 figure(17)
 clf
 comeScegliLibriComprareRename = renamecats(comeScegliLibriComprareOrder, "Leggo trame di libri finché non trovo quello che fa per me", "Leggo trame");
-doubleBarPlotRowNorm(comeSceglicut, comeScegliLibriComprareRename, Eta, "Come scegli i libri da comprare [%]",3);
+barPlotRowNorm(comeSceglicut, comeScegliLibriComprareRename, Eta, "Come scegli i libri da comprare [%]",3);
 set(gcf,'Position',[0 0 800 600])
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"17-Come scegli i libri da comprare-perc.pdf", '-dpdf')
@@ -320,7 +320,7 @@ currentCat = categorical(categories(T.CompriLibriCheHannoSullaCopertinaScrittofe
 
 figure(18)
 clf
-doubleBarPlotRowNorm(impattoCopertina{1:end-1,1:end-1}, currentCat, Eta, {'Compri libri che hanno sulla copertina scritto','"Fenomeno di BookTok" o "Romanzo di Wattpad" [%]'},2);
+barPlotRowNorm(impattoCopertina{1:end-1,1:end-1}, currentCat, Eta, {'Compri libri che hanno sulla copertina scritto','"Fenomeno di BookTok" o "Romanzo di Wattpad" [%]'},2);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"18-Compri libri che hanno sulla copertina scritto fenomeno booktok o wattpad-perc.pdf", '-dpdf')
 table2latex(impattoCopertina,char(savePath+"18-Compri libri che hanno sulla copertina scritto fenomeno booktok o wattpad-perc.tex"))
@@ -333,7 +333,7 @@ T = report(:, ["Eta", "ConsideraGliUltimiDodiciMesiTiCapitatoDiComprareDeiLibriS
 
 figure(19)
 clf
-doubleBarPlotRowNorm(impattoCopertinaUltimoAnno{1:end-1,1:end-1}, siNoCat, Eta, {'Considera gli ultimi dodici mesi. Ti è capitato di comprare dei libri','suggeriti da BookTok, BookTube o Bookstagram? [%]'},0);
+barPlotRowNorm(impattoCopertinaUltimoAnno{1:end-1,1:end-1}, siNoCat, Eta, {'Considera gli ultimi dodici mesi: ti è capitato di comprare dei libri','suggeriti da BookTok, BookTube o Bookstagram? [%]'},0);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"19-Considera gli ultimi dodici mesi-Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram-perc.pdf", '-dpdf')
 table2latex(impattoCopertinaUltimoAnno,char(savePath+"19-Considera gli ultimi dodici mesi-Ti è capitato di comprare dei libri suggeriti da BookTok, BookTube o Bookstagram-perc.tex"))
@@ -345,7 +345,7 @@ T = report(:, ["Eta", "CompriELeggiUnLibroAncheSeStatoDefinitobruttoDaUnBookinfl
 
 figure(20)
 clf
-doubleBarPlotRowNorm(libroDefBrutto{1:end-1,1:end-1}, siNoCat, Eta, {'Compri e leggi un libro anche se è stato definito "Brutto"','da un Bookinfluencer che segui e stimi? [%]'},0);
+barPlotRowNorm(libroDefBrutto{1:end-1,1:end-1}, siNoCat, Eta, {'Compri e leggi un libro anche se è stato definito "Brutto"','da un Bookinfluencer che segui e stimi? [%]'},0);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"20-Compri e leggi un libro anche se è stato definito brutto-perc.pdf", '-dpdf')
 table2latex(libroDefBrutto,char(savePath+"20-Compri e leggi un libro anche se è stato definito brutto-perc.tex"))
@@ -363,11 +363,36 @@ DuranteLaLetturaCat = categorical(catList);
 
 figure(21)
 clf
-doubleBarPlotRowNorm(duranteLaLetturaCut, DuranteLaLetturaCatOrder, Eta, 'Durante la lettura di un libro cosa fai? [%]',3);
+barPlotRowNorm(duranteLaLetturaCut, DuranteLaLetturaCatOrder, Eta, 'Durante la lettura di un libro cosa fai? [%]',3);
 set(gcf,'PaperOrientation','landscape');
 print(gcf,'-vector','-bestfit', savePath+"21-Durante la lettura di un libro cosa fai-perc.pdf", '-dpdf')
 table2latex(duranteLaLettura,char(savePath+"21-Durante la lettura di un libro cosa fai-perc.tex"))
 table2latex(duranteLaLetturaNum,char(savePath+"21-Durante la lettura di un libro cosa fai-clear.tex"))
+
+%% Quanti libri compri se NON fai parte di una Community (22)
+col = ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"];
+T = report(utentiNonParteComLib_Id, ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"]);
+hist3MultCategory(T, Eta, 10, 60, ["Quanti libri compri se NON FAI","parte di una Community[%]"],22)
+view(65,30)
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'22-Quanti libri compri se NON fai parte di una Community-perc.pdf', '-dpdf')
+
+%% Quanti libri compri se fai parte di una Community (23)
+col = ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"];
+T = report(utentiParteComLib_Id, ["Eta", "QuantiLibriCompriInMediaInUnAnnoTraUsatiENuoviScrivereIlNumeroI"]);
+hist3MultCategory(T, Eta, 10, 60, ["Quanti libri compri se fai","parte di una Community[%]"],23)
+view(65,30)
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'23-Quanti libri compri se fai parte di una Community-perc.pdf', '-dpdf')
+
+%% Tra gli appartenenti a una Community, sei un bookinfluencer? (24)
+T = report(utentiParteComLib_Id, "UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer");
+
+figure(24)
+pie(T.UsiUnoDiQuestiAccountPerParlareDiLibriseiUnBookinfluencer, [1,0])
+title(["Tra gli appartenenti a una Community,","sei un Bookinfluencer?"])
+set(gcf,'PaperOrientation','landscape');
+print(gcf,'-vector','-bestfit', savePath+'24-Tra gli appartenenti a una Community, sei un bookinfluencer.pdf', '-dpdf')
 
 
 
@@ -450,8 +475,12 @@ function hist3MultCategory(reportColTable, categoryValue, slotSize, maxFixed, ti
     ylim(0.5 + [0 slot])
 end
 
-function doubleBarPlotColNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel)
-bar(xNameCategory,tableMatrix,'stacked');
+function barPlotColNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel,stylePlot)
+if ~exist('stylePlot','var')
+    % il secondo parametro non esiste, so default it to something
+    stylePlot = 'stacked';
+end
+bar(xNameCategory,tableMatrix,stylePlot);
 if fitLevel > 0
     hold on
     barSum = nansum(tableMatrix,2)';
@@ -467,8 +496,23 @@ grid on
 title(titleString)
 end
 
-function doubleBarPlotRowNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel)
-bar(xNameCategory,tableMatrix,'stacked');
+function colNormTopTextBar(tableMatrix, order)
+Y = tableMatrix{1:end-1,"SumRows"}';
+if ~exist('order','var')
+    % il secondo parametro non esiste, so default it to something
+    dataPlotOrder = Y;
+else
+    dataPlotOrder(grp2idx(order)) = Y;
+end
+text(1:length(Y),dataPlotOrder,num2str(dataPlotOrder'),'vert','bottom','horiz','center');
+end
+
+function barPlotRowNorm(tableMatrix, xNameCategory, subBarCategory, titleString, fitLevel,stylePlot)
+if ~exist('stylePlot','var')
+    % il secondo parametro non esiste, so default it to something
+    stylePlot = 'stacked';
+end
+bar(xNameCategory,tableMatrix,stylePlot);
 hold on
 if fitLevel > 0
     barSum = nansum(tableMatrix);
@@ -484,6 +528,16 @@ grid on
 title(titleString)
 end
 
+function rowNormTopTextBar(tableMatrix, order)
+Y = tableMatrix{"SumCols",1:end-1};
+if ~exist('order','var')
+    % il secondo parametro non esiste, so default it to something
+    dataPlotOrder = Y;
+else
+    dataPlotOrder(grp2idx(order)) = Y;
+end
+text(1:length(Y),dataPlotOrder,num2str(dataPlotOrder'),'vert','bottom','horiz','center');
+end
 
 function doubleBarHPlot(tableMatrix, xNameCategory, subBarCategory, titleString)
 barh(xNameCategory,tableMatrix,'stacked')
